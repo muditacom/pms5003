@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <byteswap.h>
 #include <signal.h>
+#include <time.h>
 
 void set_interface_attribs(int fd, int speed)
 {
@@ -59,6 +60,8 @@ void forced_read(int fd, void *buf, size_t count)
   } while (num_read < count);
 }
 
+time_t start_time;
+
 void print_data(size_t num_measurements, double *data)
 {
   static const char *labels[] = { "std_pm1", "std_pm2_5", "std_pm10",
@@ -67,9 +70,13 @@ void print_data(size_t num_measurements, double *data)
     "count_2_5um", "count_5um", "count_10um"
   };
 
-  printf("{\"num_measurements\":%lu", num_measurements);
+  time_t current_time;
+  time(&current_time);
+  double diff_time = difftime(current_time, start_time);
 
-  for (size_t i = 0; i < sizeof(labels) / sizeof(labels[0]); i++)
+  printf("{\"timestamp\":%.1f,\"num_measurements\":%lu", diff_time, num_measurements);
+
+  for (size_t i = 3; i < 6; i++)
     printf(",\"%s\":%.02f", labels[i], data[i]);
 
   printf("}\n");
@@ -119,7 +126,7 @@ int main(int argc, char **argv)
   }
 
   set_interface_attribs(fd, B9600);
-
+  time(&start_time);
   for (;;) {
     char ch;
     forced_read(fd, &ch, 1);
