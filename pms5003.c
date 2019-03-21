@@ -9,6 +9,16 @@
 #include <signal.h>
 #include <time.h>
 
+#define T_VERSION 0
+
+#if T_VERSION == 0 // non-T sensor version
+  #define DATA11_STRING "count_5um"
+  #define DATA12_STRING "count_10um"
+#else // T sensor version (measures temperature and humidity)
+  #define DATA11_STRING "temperature"
+  #define DATA12_STRING "humidity"
+#endif
+
 void set_interface_attribs(int fd, int speed)
 {
   struct termios tty;
@@ -67,7 +77,7 @@ void print_data(size_t num_measurements, double *data)
   static const char *labels[] = { "std_pm1", "std_pm2_5", "std_pm10",
     "atm_pm1", "atm_pm2_5", "atm_pm10",
     "count_0_3um", "count_0_5um", "count_1um",
-    "count_2_5um", "count_5um", "count_10um"
+    "count_2_5um", DATA11_STRING, DATA12_STRING
   };
 
   time_t current_time;
@@ -76,7 +86,12 @@ void print_data(size_t num_measurements, double *data)
 
   printf("{\"timestamp\":%.1f,\"num_measurements\":%lu", diff_time, num_measurements);
 
-  for (size_t i = 3; i < 6; i++)
+#if T_VERSION == 1
+  data[10] = data[10] / 10.0;
+  data[11] = data[11] / 10.0;
+#endif
+
+  for (size_t i = 3; i < 12; i++)
     printf(",\"%s\":%.02f", labels[i], data[i]);
 
   printf("}\n");
