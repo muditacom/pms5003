@@ -120,7 +120,7 @@ void print_data(double *data)
     print_wrap(",\"%s\":%.02f", labels[i], data[i]);
   }
 
-  print_wrap("}\n");
+  print_wrap("},\n");
 }
 
 double avg_sum[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -179,7 +179,16 @@ int main(int argc, char **argv) {
         fprintf(stderr, "fatal: open(): %s: %s\n", portname, strerror(errno));
         exit(-1);
     }
-    g_log = fopen("./log.log", "w+");
+
+    time_t current_time;
+    time(&current_time);
+    char *logname=0;
+    int ret=asprintf(&logname,"%lu.json", current_time);
+    if(ret<0) {
+        fprintf(stderr, "Error on logfile!\n");
+        exit(1);
+    }
+    g_log = fopen(logname, "w+");
     if (g_log == NULL) {
         printf("Error: ./log.log %s\n", strerror(errno));
     }
@@ -187,6 +196,7 @@ int main(int argc, char **argv) {
     if (g_fd == NULL) {
         printf("Error: %s %s\n", portname, strerror(errno));
     }
+    free(logname);
     print_wrap("LOG START\n");
 
     set_interface_attribs(fd, B9600);

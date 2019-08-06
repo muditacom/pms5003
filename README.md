@@ -30,8 +30,9 @@
 
 ## Workflow
 
-* gather data i.e. `./pms5003 /dev/ttyUSB0` -> will log to `log.log` file
-    * pm5003 returns nearly proper json (need to add `[` and `]`) and can be nicelly imported to plot
+* check test data from example - just run notebook `pm_plot.ipnyb` as it is
+* gather data i.e. `./pms5003 /dev/ttyUSB0` -> will log to `tmestamp.log` file
+    * pm5003 returns nearly proper json (need to add `[` and `]`, remove last `,`) and can be nicelly imported to plot
     * pm_plot.ipynb plots data, needs at least this formated json
     `[
         {
@@ -50,8 +51,11 @@
     * run all rows one after another, last one will have plot in time
     * connect usbcam, change `/dev/video1` to your cam in `./script.sh`
     * run `script.sh` to capture image each minute
+    * run `script2.sh` to make human-as-ocr work
+        * this could be automated with python + opencv + tesseract but it would take some time (didn't work nice with my camera)
     * manually rewrite data to json/doc (and export to json) to load to `pm_plot`
 
+------------------------------------------------------------------------------------------------
 # From original repository
 ## pms5003
 
