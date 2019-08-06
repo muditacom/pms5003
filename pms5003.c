@@ -97,7 +97,7 @@ void print_wrap(char* fmt, ...)
    free(str);
 }
 
-void print_data(size_t num_measurements, double *data)
+void print_data(double *data)
 {
   static const char *labels[] = { "std_pm1", "std_pm2_5", "std_pm10",
     "atm_pm1", "atm_pm2_5", "atm_pm10",
@@ -109,7 +109,7 @@ void print_data(size_t num_measurements, double *data)
   time(&current_time);
   double diff_time = difftime(current_time, start_time);
 
-  print_wrap("{\"t: %lu, dt\":%.1f,\"num_measurements\":%lu", current_time, diff_time, num_measurements);
+  print_wrap("{\"t\": %lu, \n\"dt\":%.1f", current_time, diff_time);
 
 #if T_VERSION == 1
   data[10] = data[10] / 10.0;
@@ -146,7 +146,7 @@ void sigalrm_handler()
   if (avg_num > 0) {
     for (size_t i = 0; i < sizeof(avg_sum) / sizeof(avg_sum[0]); i++)
       avg_sum[i] /= avg_num;
-    print_data(avg_num, avg_sum);
+    print_data(avg_sum);
     exit(0);
   } else {
     fprintf(stderr,
@@ -225,7 +225,7 @@ int main(int argc, char **argv) {
 
         // Print each frame if not averaging over time.
         if (!average_over)
-            print_data(1, data_fp);
+            print_data(data_fp);
     }
 
     close(fd); // Won't happen...
